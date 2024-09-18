@@ -1,10 +1,14 @@
 # Usa una imagen base de Java
-FROM openjdk:19-jdk-alpine3.16
+FROM maven:3.8.5-openjdk-17 AS build
 
-WORKDIR /app
+COPY . .
 
-COPY target/spring-security-0.0.1-SNAPSHOT.jar /app/mi-aplicacion.jar
+RUN mvn clean package -DskipTests
+
+FROM openjdk:17.0.1-jdk-slim
+
+COPY --from=build /target/spring-security-0.0.1-SNAPSHOT.jar project.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "/app/mi-aplicacion.jar"]
+ENTRYPOINT ["java", "-jar", "project.jar"]
